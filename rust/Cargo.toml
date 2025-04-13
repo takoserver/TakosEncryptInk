@@ -1,0 +1,11 @@
+[package]
+name = "takosEncryptInk-rs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+aes = "0.8.4"
+ml-dsa = "0.0.4"
+ml-kem = "0.2.1"
+rand = "0.8.5"  # ml-dsaと互換性のあるバージョン
+rand_chacha = "0.3.1"  # rand 0.8.5と互換性のあるバージョン
