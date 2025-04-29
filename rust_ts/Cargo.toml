@@ -1,0 +1,15 @@
+[package]
+name = "takos_encrypt_ink_wasm"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+takos_encrypt_ink_rs = { path = "../rust" }
+wasm-bindgen    = { version = "0.2", features = ["serde-serialize"] }
+js-sys          = "0.3"
+console_error_panic_hook = "0.1.7"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

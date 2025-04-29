@@ -19,6 +19,12 @@ export interface accountKey {
   timestamp: number;
 }
 
+export interface serverKey {
+  keyType: "serverKeyPublic" | "serverKeyPrivate";
+  key: string;
+  timestamp: number;
+}
+
 export interface roomKey {
   keyType: "roomKey";
   key: string;

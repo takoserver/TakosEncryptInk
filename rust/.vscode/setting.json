@@ -5,7 +5,7 @@
         "sysroot": "C:/Users/shout/.rustup/toolchains/stable-x86_64-pc-windows-msvc",
         "crates": [
           {
-            "root_module": "C:/Users/shout/Desktop/takos/TakosEncryptInk/rust/src/main.rs",
+            "root_module": "C:/Users/shout/Desktop/takos/TakosEncryptInk/rust_ts/src/main.rs",
             "edition": "2021",
             "deps": []
           }

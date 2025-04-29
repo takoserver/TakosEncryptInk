@@ -1,11 +1,26 @@
 [package]
-name = "takosEncryptInk-rs"
+name = "takos_encrypt_ink_rs"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-aes = "0.8.4"
+ml-kem = { version = "0.2.1", features = ["std"] } # KEM 本体
+rand = "0.8" # 乱数生成
+base64 = "0.21" # Base64 エンコード／デコード
+generic-array = "1.2.0" # 固定長配列操作（ml-kem の内部型に必要）
+zerocopy = "0.8.24"
 ml-dsa = "0.0.4"
-ml-kem = "0.2.1"
-rand = "0.8.5"  # ml-dsaと互換性のあるバージョン
-rand_chacha = "0.3.1"  # rand 0.8.5と互換性のあるバージョン
+aes-gcm = "0.10"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10.8"
+uuid = "1.16.0"
+regex = "1"
+hex = "0.4.3"
+chrono = { version = "0.4", features = ["serde"] }
+wasm-bindgen = "0.2"
+js-sys = "0.3.77"
+getrandom = { version = "0.2", features = ["js"] }
+
+[lib]
+crate-type = ["cdylib", "rlib"]

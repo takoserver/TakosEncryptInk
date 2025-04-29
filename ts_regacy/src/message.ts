@@ -10,13 +10,12 @@ import type {
   VideoContent,
   AudioContent,
   FileContent,
-  ThumbnailContent,
-  ReplyInfo,
-  TextThumbnail,
-  MediaThumbnail,
-  FilesThumbnail
 } from "./type.ts";
 import { keyHash } from "./utils.ts";
+import {
+  MessageSchema
+} from "./schema.ts";
+import { encryptDataAccountKey } from "./accountKey.ts";
 
 /**
  * メッセージを暗号化する
@@ -107,16 +106,12 @@ export async function encryptMessage(
  * @returns 復号されたメッセージ (Message 型)、またはエラー時はnull
  */
 export async function decryptMessage(
-  message: {
-    message: string;
-    sign: string;
-  },
-  serverData: {
-    timestamp: number;
-  },
-  roomKey: string,
-  identityKeyPub: string,
-  roomid: string,
+message: {
+  message: string;
+  sign: string;
+}, serverData: {
+  timestamp: number;
+}, roomKey: string, identityKeyPub: string, roomid: string,
 ): Promise<Message | null> {
   if (!isValidIdentityKeyPublic(identityKeyPub)) {
     console.error("無効なアイデンティティキーが指定されました");
@@ -197,59 +192,15 @@ export async function decryptMessage(
  */
 export function isValidMessage(message: string): boolean {
   try {
-    const messageObj = JSON.parse(message) as Message;
-
-    if (typeof messageObj.encrypted !== 'boolean') return false;
-    if (typeof messageObj.channel !== 'string' || messageObj.channel.length > 100) return false;
-    if (typeof messageObj.timestamp !== 'number' || !Number.isInteger(messageObj.timestamp)) return false;
-    if (typeof messageObj.isLarge !== 'boolean') return false;
-    if (messageObj.original !== undefined && typeof messageObj.original !== 'string') return false;
-    if (typeof messageObj.roomid !== 'string') return false;
-
-    if (messageObj.encrypted) {
-      if (typeof messageObj.value !== 'string') return false;
-      if (!isValidEncryptedDataRoomKey(messageObj.value)) {
-        console.error("暗号化メッセージの value が無効です");
-        return false;
-      }
-      return true;
-    } else {
-      const value = messageObj.value;
-      if (typeof value !== 'object' || value === null) return false;
-
-      const validTypes = ["text", "image", "video", "audio", "file", "thumbnail"];
-      if (!validTypes.includes(value.type)) {
-        console.error("メッセージタイプが無効です");
-        return false;
-      }
-
-      if (typeof value.content !== 'string') return false;
-
-      if (value.reply !== undefined) {
-        if (typeof value.reply !== 'object' || value.reply === null || typeof value.reply.id !== 'string') {
-          console.error("reply が無効です");
-          return false;
-        }
-      }
-
-      if (value.mention !== undefined) {
-        if (!Array.isArray(value.mention) || !value.mention.every(m => typeof m === 'string')) {
-          console.error("mention が無効です");
-          return false;
-        }
-      }
-
-      try {
-        JSON.parse(value.content);
-      } catch {
-        console.error("content が有効な JSON 文字列ではありません");
-        return false;
-      }
-
-      return true;
+    const messageObj = JSON.parse(message);
+    const result = MessageSchema.safeParse(messageObj);
+    if (!result.success) {
+      // console.error("メッセージ検証エラー:", result.error.errors); // Optional: Log detailed errors
+      return false;
     }
+    return true;
   } catch (error) {
-    console.error("メッセージ検証中にエラー:", error);
+    // console.error("メッセージ検証中にJSONパースエラー:", error); // Optional: Log parsing errors
     return false;
   }
 }
@@ -372,4 +323,35 @@ export function createFileContent(
     ...options
   };
   return JSON.stringify(content);
+}
+
+export async function encryptRoomKeyWithAccountKeys(
+  users: {
+    masterKey: string;
+    accountKeySign: string;
+    accountKey: string;
+    userId: string;
+  }[],
+  roomKey: string,
+): Promise<{
+  userId: string;
+  encryptedData: string;
+}[]> {
+  const encryptedKeys: {
+    userId: string;
+    encryptedData: string;
+  }[] = [];
+
+  for (const user of users) {
+    const { masterKey, accountKeySign, accountKey, userId } = user;
+    const encryptedData = await encryptDataAccountKey(accountKey, roomKey);
+    if (encryptedData) {
+      encryptedKeys.push({
+        userId,
+        encryptedData,
+      });
+    }
+  }
+
+  return encryptedKeys;
 }

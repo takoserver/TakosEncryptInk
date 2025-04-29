@@ -1,0 +1,14 @@
+{
+  "tasks": {
+    "dev": "deno run --watch main.ts"
+  },
+  "imports": {
+    "@noble/post-quantum": "npm:@noble/post-quantum@^0.4.0",
+    "@std/assert": "jsr:@std/assert@1",
+    "base64-arraybuffer": "npm:base64-arraybuffer@^1.0.2",
+    "takos_encrypt_ink_wasm": "./pkg/takos_encrypt_ink_wasm.js",
+    "takos_encrypt_ink_wasm_bg.wasm": "./pkg/takos_encrypt_ink_wasm_bg.wasm",
+    "takos_encrypt_ink_wasm_bg.js": "./pkg/takos_encrypt_ink_wasm_bg.js",
+    "zod": "npm:zod@^3.24.3"
+  }
+}
